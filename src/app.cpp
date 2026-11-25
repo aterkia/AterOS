@@ -6,7 +6,7 @@
 #include <curses.h>
 #include <utility>
 
-namespace rov {
+namespace ateros {
 
 namespace {
 constexpr std::size_t kMaxLogs = 500;
@@ -347,4 +347,4 @@ void App::shutdown() {
   saveConfig(last_valid_);
 }
 
-} // namespace rov
+} // namespace ateros

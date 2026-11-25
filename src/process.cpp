@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include <utility>
 
-namespace rov {
+namespace ateros {
 
 bool routineOutput(const std::string &line) {
   static const std::vector<std::string> ignored{
@@ -141,4 +141,4 @@ void ManagedProcess::readOutput(int fd) {
   fclose(stream);
 }
 
-} // namespace rov
+} // namespace ateros

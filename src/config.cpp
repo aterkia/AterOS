@@ -2,16 +2,17 @@
 
 #include <arpa/inet.h>
 #include <cstdlib>
+#include <filesystem>
 #include <fstream>
 #include <iterator>
 #include <regex>
 
-namespace rov {
+namespace ateros {
 
 namespace {
-std::string homeConfigPath() {
+std::string homeConfigPath(const char *name = ".ateros.json") {
   const char *home = std::getenv("HOME");
-  return std::string(home ? home : ".") + "/.rov_control.json";
+  return std::string(home ? home : ".") + "/" + name;
 }
 bool validPort(int value) { return value >= 1 && value <= 65535; }
 std::string jsonEscape(const std::string &value) {
@@ -81,7 +82,10 @@ bool saveConfig(const Config &cfg) {
 }
 Config loadConfig() {
   Config cfg;
-  const std::string source = readFile(homeConfigPath());
+  std::string source = readFile(homeConfigPath());
+  std::error_code path_error;
+  if (!std::filesystem::exists(homeConfigPath(), path_error) && !path_error)
+    source = readFile(homeConfigPath(".rov_control.json"));
   if (source.empty())
     return cfg;
   auto stringField = [&](const char *key, std::string &target) {
@@ -112,4 +116,4 @@ Config loadConfig() {
   return validate(cfg, error) ? cfg : Config{};
 }
 
-} // namespace rov
+} // namespace ateros

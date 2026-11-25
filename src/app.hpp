@@ -11,7 +11,7 @@
 #include <utility>
 #include <vector>
 
-namespace rov {
+namespace ateros {
 
 class App {
 public:
@@ -70,4 +70,4 @@ private:
   void shutdown();
 };
 
-} // namespace rov
+} // namespace ateros

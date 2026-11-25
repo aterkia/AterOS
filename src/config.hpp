@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace rov {
+namespace ateros {
 
 struct Config {
   std::string ip{"192.168.1.198"};
@@ -21,4 +21,4 @@ bool validate(const Config &cfg, std::string &error);
 Config loadConfig();
 bool saveConfig(const Config &cfg);
 
-} // namespace rov
+} // namespace ateros

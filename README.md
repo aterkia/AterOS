@@ -1,6 +1,6 @@
-# ROV Control C++ TUI
+# AterOS
 
-Penulisan ulang C++17 dari ROV Stream Control. Aplikasi menjalankan dua pipeline GStreamer dan MAVProxy, memindai Ethernet, menyimpan konfigurasi, menangkap output proses ke panel log, serta menghentikan seluruh stream saat keluar.
+AterOS adalah aplikasi kontrol streaming berbasis TUI yang ditulis dalam C++17. Aplikasi menjalankan dua pipeline GStreamer dan MAVProxy, memindai Ethernet, menyimpan konfigurasi, menangkap output proses ke panel log, serta menghentikan seluruh stream saat keluar.
 
 ## Dependensi Raspberry Pi
 
@@ -19,7 +19,7 @@ Binary release tersedia untuk Linux x86-64 dan ARM64 (Raspberry Pi OS Bookworm
 64-bit atau lebih baru). Binary dibangun pada Debian 12 dan membutuhkan glibc
 2.36+, libstdc++ dari GCC 12+, serta ncurses 6. GStreamer, MAVProxy, `iproute2`,
 dan `iputils-ping` tetap perlu dipasang pada perangkat. Pilih arsip yang sesuai
-arsitektur, ekstrak, lalu jalankan `./rov_control` dari folder hasil ekstraksi.
+arsitektur, ekstrak, lalu jalankan `./ateros` dari folder hasil ekstraksi.
 
 Untuk membangun dari source:
 
@@ -40,7 +40,7 @@ docker run --rm -v "$PWD:/src:ro" -v "$PWD/release-output:/out" \
 Jalankan dari terminal minimal 78×22:
 
 ```bash
-./build/rov_control
+./build/ateros
 ```
 
 Saat aplikasi dibuka, aplikasi lebih dahulu mencoba target IP yang tersimpan di
@@ -79,9 +79,9 @@ src/
 └── app_view.cpp      # Rendering dashboard serta panel edit, scan, dan bantuan
 ```
 
-`rov_core` berisi modul konfigurasi, proses, controller, dan jaringan, tanpa
-dependensi ncurses. Executable `rov_control` menambahkan lapisan TUI di atasnya.
-Semua API modul berada di namespace `rov`; helper internal tetap privat di file
+`ateros_core` berisi modul konfigurasi, proses, controller, dan jaringan, tanpa
+dependensi ncurses. Executable `ateros` menambahkan lapisan TUI di atasnya.
+Semua API modul berada di namespace `ateros`; helper internal tetap privat di file
 implementasi. Perubahan perintah GStreamer/MAVProxy berada di `controller.cpp`,
 sedangkan perubahan tampilan berada di `app_view.cpp`.
 
@@ -90,7 +90,7 @@ Pemindaian jaringan mengembalikan `ScanResult` berisi daftar IP atau pesan error
 Saat keluar, aplikasi membatalkan probe berikutnya dan menunggu probe aktif
 selesai sebelum melepas thread scan.
 
-`core_tests` memakai header dan library `rov_core` secara langsung. Test mencakup
+`core_tests` memakai header dan library `ateros_core` secara langsung. Test mencakup
 validasi konfigurasi, subnet, pembatalan scan, filter log, status awal controller,
 serta start/stop dan penangkapan output proses lokal; tidak memerlukan kamera,
 MAVProxy, atau terminal interaktif.
@@ -116,11 +116,14 @@ buatan pada `core_tests`.
 | `H` | Bantuan. |
 | `Q` / `Ctrl+C` | Stop semua stream, simpan konfigurasi valid, dan keluar. |
 
-Konfigurasi kompatibel dengan aplikasi Python sebelumnya dan tetap berada di `~/.rov_control.json`.
+Konfigurasi disimpan di `~/.ateros.json`. Jika file tersebut belum ada, AterOS
+membaca `~/.rov_control.json` sebagai fallback, lalu menyimpan konfigurasi ke nama
+baru saat `W`, `S`, atau keluar. File lama tetap dipertahankan; jika kedua file
+ada, `~/.ateros.json` yang digunakan.
 
 ## Catatan
 
-Path MAVProxy disimpan sebagai `mavproxy_path` di `~/.rov_control.json`, dengan
+Path MAVProxy disimpan sebagai `mavproxy_path` di `~/.ateros.json`, dengan
 default `mavproxy.py` dari `PATH`. Ubah melalui menu Edit lalu tekan `W` atau `S`
 untuk menyimpannya. MAVProxy dijalankan tanpa argumen `--streamrate`. Output GStreamer
 dan MAVProxy tidak menulis langsung ke terminal; seluruh error dan diagnostic masuk

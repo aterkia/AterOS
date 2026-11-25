@@ -13,12 +13,12 @@
 #include <fstream>
 #include <mutex>
 
-using namespace rov;
+using namespace ateros;
 
 int main() {
   // Synthetic sysfs entries distinguish wired NICs from renamed Wi-Fi and
   // virtual Ethernet devices without depending on the test machine's hardware.
-  char sysfs_template[] = "/tmp/rov-network-test-XXXXXX";
+  char sysfs_template[] = "/tmp/ateros-network-test-XXXXXX";
   const char *sysfs_dir = mkdtemp(sysfs_template);
   assert(sysfs_dir);
   const auto sysfs = std::filesystem::path(sysfs_dir);
@@ -37,6 +37,26 @@ int main() {
   for (const auto *name : {"eth_wifi", "wlan0", "docker0", "lo", "missing",
                            "../eth0", ".", "..", "eth0;exit"})
     assert(!isEthernetInterface(name, sysfs.string()));
+  const char *original_home = std::getenv("HOME");
+  const std::string saved_home = original_home ? original_home : "";
+  assert(setenv("HOME", sysfs_dir, 1) == 0);
+  assert(loadConfig().ip == Config{}.ip);
+  std::ofstream(sysfs / ".rov_control.json")
+      << R"({"ip":"192.0.2.42","mavproxy_path":"/opt/venv/bin/mavproxy.py","mav_port1":14600})";
+  const auto migrated = loadConfig();
+  assert(migrated.ip == "192.0.2.42");
+  assert(migrated.mavproxy_path == "/opt/venv/bin/mavproxy.py");
+  assert(migrated.mav_port1 == 14600);
+  assert(saveConfig(migrated));
+  assert(std::filesystem::exists(sysfs / ".ateros.json"));
+  assert(std::filesystem::exists(sysfs / ".rov_control.json"));
+  assert(loadConfig().mavproxy_path == migrated.mavproxy_path);
+  std::ofstream(sysfs / ".ateros.json") << "{}";
+  assert(loadConfig().ip == Config{}.ip);
+  if (original_home)
+    assert(setenv("HOME", saved_home.c_str(), 1) == 0);
+  else
+    assert(unsetenv("HOME") == 0);
   std::filesystem::remove_all(sysfs);
 
   Config config;
@@ -78,7 +98,7 @@ int main() {
   assert(!routineOutput("ERROR: camera unavailable"));
 
   // Process tests require executable children for the target architecture.
-#ifndef ROV_CROSS_COMPILED
+#ifndef ATEROS_CROSS_COMPILED
   // Exercise the extracted process module without cameras, MAVProxy, or a TTY.
   std::mutex log_lock;
   std::condition_variable output_ready;

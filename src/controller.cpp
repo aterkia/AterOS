@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <utility>
 
-namespace rov {
+namespace ateros {
 
 Controller::Controller(ManagedProcess::Log log, std::function<void()> changed)
     : log_(std::move(log)), changed_(std::move(changed)) {}
@@ -83,4 +83,4 @@ std::map<std::string, bool> Controller::states() {
   return out;
 }
 
-} // namespace rov
+} // namespace ateros

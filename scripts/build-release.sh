@@ -23,13 +23,13 @@ cmake --build /out/build-arm64 --parallel 2
 ctest --test-dir /out/build-arm64 --output-on-failure
 
 for arch in x86_64 arm64; do
-  package="rov-control-v0.1.0-linux-$arch"
+  package="ateros-v0.1.0-linux-$arch"
   mkdir -p "/out/$package"
-  install -m 755 "/out/build-$arch/rov_control" "/out/$package/rov_control"
+  install -m 755 "/out/build-$arch/ateros" "/out/$package/ateros"
   if [ "$arch" = arm64 ]; then
-    aarch64-linux-gnu-strip "/out/$package/rov_control"
+    aarch64-linux-gnu-strip "/out/$package/ateros"
   else
-    strip "/out/$package/rov_control"
+    strip "/out/$package/ateros"
   fi
   install -m 644 /src/README.md "/out/$package/README.md"
   tar -C /out -czf "/out/$package.tar.gz" "$package"

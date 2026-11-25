@@ -12,6 +12,6 @@ void signalHandler(int) { interrupted = true; }
 int main() {
   std::setlocale(LC_ALL, "");
   std::signal(SIGINT, signalHandler);
-  rov::App app(interrupted);
+  ateros::App app(interrupted);
   return app.run();
 }

@@ -3,16 +3,16 @@
 #include <algorithm>
 #include <curses.h>
 
-namespace rov {
+namespace ateros {
 
 namespace {
 constexpr const char *kWordmark[6] = {
-    u8" █████╗ ████████╗███████╗██████╗ ██╗  ██╗██╗ █████╗",
-    u8"██╔══██╗╚══██╔══╝██╔════╝██╔══██╗██║ ██╔╝██║██╔══██╗",
-    u8"███████║   ██║   █████╗  ██████╔╝█████╔╝ ██║███████║",
-    u8"██╔══██║   ██║   ██╔══╝  ██╔══██╗██╔═██╗ ██║██╔══██║",
-    u8"██║  ██║   ██║   ███████╗██║  ██║██║  ██╗██║██║  ██║",
-    u8"╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═╝"};
+    u8" █████╗ ████████╗███████╗██████╗  ██████╗ ███████╗",
+    u8"██╔══██╗╚══██╔══╝██╔════╝██╔══██╗██╔═══██╗██╔════╝",
+    u8"███████║   ██║   █████╗  ██████╔╝██║   ██║███████╗",
+    u8"██╔══██║   ██║   ██╔══╝  ██╔══██╗██║   ██║╚════██║",
+    u8"██║  ██║   ██║   ███████╗██║  ██║╚██████╔╝███████║",
+    u8"╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝"};
 } // namespace
 
 void App::add(int y, int x, const std::string &value, int width, int attr) {
@@ -65,7 +65,7 @@ void App::draw() {
     refresh();
     return;
   }
-  add(0, 2, "ROV STREAM CONTROL", -1, A_BOLD | COLOR_PAIR(1));
+  add(0, 2, "AterOS", -1, A_BOLD | COLOR_PAIR(1));
   add(0, std::max(30, cols - 36),
       "Local: " + (local_ip_.empty() ? std::string("-") : local_ip_) +
           (interface_.empty() ? "" : " (" + interface_ + ")"),
@@ -173,4 +173,4 @@ void App::drawHelp(int rows, int cols) {
     add(y + 1 + i, x + 2, help[i], 66);
 }
 
-} // namespace rov
+} // namespace ateros

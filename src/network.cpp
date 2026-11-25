@@ -14,7 +14,7 @@
 #include <thread>
 #include <unistd.h>
 
-namespace rov {
+namespace ateros {
 
 namespace {
 std::string commandOutput(const std::string &command) {
@@ -197,4 +197,4 @@ std::string chooseScanTarget(const std::vector<std::string> &ips,
   return ips.size() == 1 ? ips.front() : std::string{};
 }
 
-} // namespace rov
+} // namespace ateros

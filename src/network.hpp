@@ -5,7 +5,7 @@
 #include <utility>
 #include <vector>
 
-namespace rov {
+namespace ateros {
 
 // Physical wired Ethernet only; never falls back to the default/Wi-Fi route.
 std::pair<std::string, std::string> localIpv4();
@@ -35,4 +35,4 @@ TargetProbeResult probeTargetOnEthernet(const std::string &ip,
 // probes.
 ScanResult scanNetwork(const std::atomic<bool> &cancelled);
 
-} // namespace rov
+} // namespace ateros

@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-namespace rov {
+namespace ateros {
 
 class Controller {
 public:
@@ -24,4 +24,4 @@ private:
   std::vector<std::unique_ptr<ManagedProcess>> processes_;
 };
 
-} // namespace rov
+} // namespace ateros

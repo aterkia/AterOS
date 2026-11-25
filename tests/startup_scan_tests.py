@@ -17,28 +17,28 @@ import time
 def scenario(binary, name, cidr="192.0.2.1/30", preferred=None,
              autostart=None, delay=0, action="auto", link="up",
              config_reachable=False):
-    with tempfile.TemporaryDirectory(prefix="rov-startup-") as directory:
+    with tempfile.TemporaryDirectory(prefix="ateros-startup-") as directory:
         root = Path(directory)
         commands = root / "bin"
         commands.mkdir()
         scripts = {
             "ip": """#!/bin/sh
-printf '%s\\n' "$*" >> "$ROV_TEST_NETWORK_CALLS"
+printf '%s\\n' "$*" >> "$ATEROS_TEST_NETWORK_CALLS"
 case "$*" in
   *route*) printf '1.1.1.1 dev wlan0 src 198.51.100.1\\n' ;;
   *link*)
     printf '1: lo: <LOOPBACK,UP,LOWER_UP> state UNKNOWN\\n'
     printf '2: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> state UP\\n'
     printf '3: docker0: <BROADCAST,MULTICAST,UP,LOWER_UP> state UP\\n'
-    if [ "$ROV_TEST_LINK" = up ]; then
-      printf '4: %s: <BROADCAST,MULTICAST,UP,LOWER_UP> state UP\\n' "$ROV_TEST_IFACE"
-    elif [ "$ROV_TEST_LINK" = down ]; then
-      printf '4: %s: <NO-CARRIER,BROADCAST,MULTICAST,UP> state DOWN\\n' "$ROV_TEST_IFACE"
+    if [ "$ATEROS_TEST_LINK" = up ]; then
+      printf '4: %s: <BROADCAST,MULTICAST,UP,LOWER_UP> state UP\\n' "$ATEROS_TEST_IFACE"
+    elif [ "$ATEROS_TEST_LINK" = down ]; then
+      printf '4: %s: <NO-CARRIER,BROADCAST,MULTICAST,UP> state DOWN\\n' "$ATEROS_TEST_IFACE"
     fi ;;
   *addr*)
-    if [ "$6" = "$ROV_TEST_IFACE" ]; then
-      if [ -n "$ROV_TEST_CIDR" ]; then
-        printf '4: %s inet %s\\n' "$ROV_TEST_IFACE" "$ROV_TEST_CIDR"
+    if [ "$6" = "$ATEROS_TEST_IFACE" ]; then
+      if [ -n "$ATEROS_TEST_CIDR" ]; then
+        printf '4: %s inet %s\\n' "$ATEROS_TEST_IFACE" "$ATEROS_TEST_CIDR"
       fi
     else
       printf '2: wlan0 inet 198.51.100.1/30\\n'
@@ -46,24 +46,24 @@ case "$*" in
 esac
 """,
             "ping": """#!/bin/sh
-printf '%s\\n' "$*" >> "$ROV_TEST_PROBES"
+printf '%s\\n' "$*" >> "$ATEROS_TEST_PROBES"
 target=""
 for argument in "$@"; do target="$argument"; done
-if [ "$target" = "$ROV_TEST_CONFIG_IP" ]; then
-  [ "$ROV_TEST_CONFIG_REACHABLE" = 1 ] && exit 0
+if [ "$target" = "$ATEROS_TEST_CONFIG_IP" ]; then
+  [ "$ATEROS_TEST_CONFIG_REACHABLE" = 1 ] && exit 0
   exit 1
 fi
-sleep "$ROV_TEST_DELAY"
+sleep "$ATEROS_TEST_DELAY"
 case "$target" in 192.0.2.*) exit 0 ;; *) exit 1 ;; esac
 """,
-            "gst-launch-1.0": "#!/bin/sh\nprintf '[GSTREAMER] %s\\n' \"$*\" >> \"$ROV_TEST_CALLS\"\n",
-            "mavproxy.py": "#!/bin/sh\nprintf '[MAVPROXY] %s\\n' \"$*\" >> \"$ROV_TEST_CALLS\"\n",
+            "gst-launch-1.0": "#!/bin/sh\nprintf '[GSTREAMER] %s\\n' \"$*\" >> \"$ATEROS_TEST_CALLS\"\n",
+            "mavproxy.py": "#!/bin/sh\nprintf '[MAVPROXY] %s\\n' \"$*\" >> \"$ATEROS_TEST_CALLS\"\n",
         }
         for command, contents in scripts.items():
             path = commands / command
             path.write_text(contents)
             path.chmod(0o755)
-        config_file = root / ".rov_control.json"
+        config_file = root / ".ateros.json"
         if preferred is not None or autostart is not None:
             config = {"ip": preferred or "192.168.1.198"}
             if autostart is not None:
@@ -76,12 +76,12 @@ case "$target" in 192.0.2.*) exit 0 ;; *) exit 1 ;; esac
         # Without HOME, config.cpp uses cwd; the user's config is never touched.
         env.pop("HOME", None)
         env.update(TERM="xterm", PATH=f"{commands}:/usr/bin:/bin",
-                   ROV_TEST_CIDR=cidr, ROV_TEST_DELAY=str(delay),
-                   ROV_TEST_CALLS=str(calls), ROV_TEST_PROBES=str(probes),
-                   ROV_TEST_NETWORK_CALLS=str(network_calls),
-                   ROV_TEST_IFACE=ethernet or "missing-wired0", ROV_TEST_LINK=link,
-                   ROV_TEST_CONFIG_IP=preferred or "192.168.1.198",
-                   ROV_TEST_CONFIG_REACHABLE="1" if config_reachable else "0")
+                   ATEROS_TEST_CIDR=cidr, ATEROS_TEST_DELAY=str(delay),
+                   ATEROS_TEST_CALLS=str(calls), ATEROS_TEST_PROBES=str(probes),
+                   ATEROS_TEST_NETWORK_CALLS=str(network_calls),
+                   ATEROS_TEST_IFACE=ethernet or "missing-wired0", ATEROS_TEST_LINK=link,
+                   ATEROS_TEST_CONFIG_IP=preferred or "192.168.1.198",
+                   ATEROS_TEST_CONFIG_REACHABLE="1" if config_reachable else "0")
         master, slave = pty.openpty()
         fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 40, 160, 0, 0))
         child = subprocess.Popen([*emulator, binary], stdin=slave, stdout=slave, stderr=slave,
@@ -98,7 +98,7 @@ case "$target" in 192.0.2.*) exit 0 ;; *) exit 1 ;; esac
                     output += os.read(master, 65536)
 
         try:
-            expect("ROV STREAM CONTROL")
+            expect("AterOS")
             if action == "quit":
                 os.write(master, b"q")
             else:

@@ -7,7 +7,7 @@
 #include <thread>
 #include <vector>
 
-namespace rov {
+namespace ateros {
 
 bool routineOutput(const std::string &line);
 
@@ -33,4 +33,4 @@ private:
   std::thread reader_;
 };
 
-} // namespace rov
+} // namespace ateros
